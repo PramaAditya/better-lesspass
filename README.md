@@ -4,15 +4,15 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/manifest-v3-blue.svg?style=flat-square" alt="Manifest V3">
-  <img src="https://img.shields.io/badge/algorithm-LessPass%20v2-emerald.svg?style=flat-square" alt="LessPass v2">
-  <img src="https://img.shields.io/badge/sync-bidirectional-blueviolet.svg?style=flat-square" alt="Bidirectional Sync">
+  <img src="https://img.shields.io/badge/permissions-none-emerald.svg?style=flat-square" alt="No Permissions Required">
+  <img src="https://img.shields.io/badge/algorithm-LessPass%20v2-blueviolet.svg?style=flat-square" alt="LessPass v2">
   <img src="https://img.shields.io/badge/license-GPL--3.0-lightgrey.svg?style=flat-square" alt="GPL-3.0 License">
 </p>
 
 # Better LessPass
 
 <p align="center">
-  <b>Better LessPass is a modern, stateless password generator Chrome extension that brings premium UX, smart TLD extraction, and bidirectional sync to the classic LessPass algorithm.</b>
+  <b>Better LessPass is a secure, stateless password generator Chrome extension bringing premium UX, smart TLD extraction, and zero-permission security to the classic LessPass algorithm.</b>
   <br>
   Generate strong, reproducible passwords locally on-the-fly using Web Crypto PBKDF2-SHA256, entirely eliminating the need for cloud vaults, database synchronization, or subscription fees.
 </p>
@@ -41,36 +41,36 @@
 ---
 <br>
 
-## Why Better LessPass?
+## LessPass, but without the friction
 
-Standard LessPass is stateless but suffers from friction. Better LessPass fixes the UX gap:
+Standard LessPass is stateless but suffers from UX friction. Better LessPass bridges the gap:
 
-*   **Smart TLD Extraction**: Automatically strips subdomains and nested domains (e.g., `xxx.yyy.zzz.com` -> `zzz.com`) while preserving two-part ccTLDs like `.co.uk` and `.edu.sg`.
-*   **Two-Way Login Sync**: If you've already filled your email/username on the page, the extension automatically grabs it. If not, filling it in the extension writes it back to the page alongside your generated password.
-*   **Shadow DOM Isolation**: The popover injected into pages is encapsulated in a Shadow Root, making it immune to page CSS pollution or style breaking.
-*   **Interactive Peek**: Securely toggle visibility on your Master Password; automatically relocks to hidden when closing the popover.
+*   **Smart TLD Extraction**: Automatically strips subdomains and subpaths (e.g., `app.sub.github.com` to `github.com`) while preserving multi-part country code TLDs like `.co.uk` and `.edu.sg`.
+*   **Two-Way Login Sync**: Autofills username from the active webpage directly into the extension, or pushes a new username typed in the extension back to the form.
+*   **Shadow DOM Isolation**: The popover is encapsulated in a Shadow Root, shielding the helper from page CSS pollution and preventing site styles from breaking the extension UI.
+*   **Interactive Peek**: Securely toggle visibility on your Master Password; automatically relocks to hidden when closing the popover to prevent visual snooping.
 
 ---
 <br>
 
-## Head-to-Head Comparison
+## Traditional Vaults vs. Better LessPass
 
-| Capability / Feature | Better LessPass | Standard LessPass | Traditional Vaults (Bitwarden / 1Pass) |
+| Feature | Better LessPass | Standard LessPass | Traditional Vaults (e.g., Bitwarden) |
 |:---|:---:|:---:|:---:|
-| **Zero Vault / Stateless** | ✅ **Yes** | ✅ Yes | ✗ No (Requires cloud DB sync) |
-| **Smart TLD Prepopulation** | ✅ **Yes** | ✗ No (Requires manual input) | ✗ No (Fills from vault entry) |
-| **Bidirectional Login Sync** | ✅ **Yes** | ✗ No | ✗ No (Fills password only) |
-| **Shadow DOM Encapsulation** | ✅ **Yes** | ✗ No (Uses standard iframe/popup) | ✗ No (Browser standard popup) |
-| **Visual Glow Feedback** | ✅ **Yes** | ✗ No | ✗ No |
+| **Stateless & Local** | ✅ **Yes** (Zero storage) | ✅ Yes | ✗ No (Requires DB sync / cloud login) |
+| **Zero Permissions** | ✅ **Yes** (`"permissions": []`) | ✗ No | ✗ No (Requires tabs, network, storage) |
+| **Smart TLD Prepopulation**| ✅ **Yes** (Automatic) | ✗ No | ✗ No (Manual entry lookup) |
+| **Bidirectional Sync** | ✅ **Yes** | ✗ No | ✗ No (One-way autofill) |
+| **Shadow DOM Popover** | ✅ **Yes** (Isolated CSS) | ✗ No | ✗ No (Browser extension standard popup) |
 
 ---
 <br>
 
 ## Minimum Viable Knowledge
 
-*   ✓ **Zero-Vault Security**: Your master password is never stored, logged, or transmitted. Computation is 100% local.
-*   ✓ **Deterministic Keys**: Given the same Site, Login, Master Password, and Complexity Options, the generated output is mathematically guaranteed to be identical on any device.
-*   ✓ **No-Sync Freedom**: Access your credentials on any computer simply by running the LessPass algorithm—no vault migration required.
+*   ✓ **Zero-Vault Security**: Your master password is never saved, cached, or transmitted. Key derivation runs 100% on the client.
+*   ✓ **Deterministic Keys**: Given the same Site, Login, Master Password, and Complexity Options, the generated output is mathematically identical on any device.
+*   ✓ **Zero Permission Footprint**: By requiring empty Manifest V3 permissions, the extension guarantees that your inputs cannot be exfiltrated.
 *   ✓ **Auto-Lock Safety**: Peeking your master password automatically resets to hidden (`type="password"`) on popover close to prevent visual snooping.
 
 ---
@@ -79,7 +79,7 @@ Standard LessPass is stateless but suffers from friction. Better LessPass fixes 
 ## Quick Start
 
 ```bash
-# 1. Clone the repository
+# Clone the repository
 git clone https://github.com/PramaAditya/better-lesspass.git
 ```
 
@@ -88,12 +88,12 @@ git clone https://github.com/PramaAditya/better-lesspass.git
 2. Toggle **Developer mode** in the top-right corner.
 3. Click **Load unpacked** in the top-left corner.
 4. Select the cloned `better-lesspass/` directory.
-5. Open `test.html` in your browser to verify password-field detection and auto-population!
+5. Open `test.html` in your browser to test field detection and auto-population!
 
 ---
 <br>
 
-## Architecture Panoramic
+## System Architecture
 
 ```text
   Active Webpage           Shadow DOM Popover            Crypto Engine (Web Crypto)
