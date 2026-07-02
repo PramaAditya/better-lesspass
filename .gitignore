@@ -1,0 +1,12 @@
+# Chrome Extension Packaged Keys & Outputs
+*.pem
+*.crx
+
+# IDEs & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local env / credentials
+.env
+.env.local
