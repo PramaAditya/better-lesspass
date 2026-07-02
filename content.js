@@ -307,7 +307,7 @@
           width: 22px;
           height: 22px;
           border-radius: 50%;
-          background: #3b82f6;
+          background: transparent;
           border: none;
           cursor: pointer;
           pointer-events: auto;
@@ -319,12 +319,12 @@
           padding: 0;
           color: white;
           outline: none;
+          overflow: hidden;
         }
 
         .icon-btn:hover {
-          background: #2563eb;
           transform: scale(1.1);
-          box-shadow: 0 3px 8px rgba(37, 99, 235, 0.4);
+          box-shadow: 0 3px 8px rgba(16, 185, 129, 0.4);
         }
 
         .icon-btn:active {
@@ -519,11 +519,14 @@
       // Float Trigger Button
       this.iconBtn = document.createElement('button');
       this.iconBtn.className = 'icon-btn';
-      this.iconBtn.setAttribute('title', 'LessPass Generator');
+      this.iconBtn.setAttribute('title', 'Better LessPass');
       this.iconBtn.innerHTML = `
-        <svg viewBox="0 0 24 24">
-          <path d="M12.63 2a9.14 9.14 0 0 0-9 9.14c0 3.32 5.17 10.3 8.35 10.74a1 1 0 0 0 .65-.13l3-1.8a1 1 0 0 0 .37-.78v-1.63h1.8a1 1 0 0 0 .71-.29l1.8-1.8a1 1 0 0 0 .29-.71v-3.6a9.14 9.14 0 0 0-8-9.14zm3.17 12.18l-1.8 1.8a1 1 0 0 0-.29.71v1.63l-2.07 1.25c-2.47-.94-6.44-7.2-6.44-9.63a7.14 7.14 0 0 1 14 0v3.6a1 1 0 0 0-.4 1.14z"/>
-          <circle cx="12.63" cy="8" r="2" />
+        <svg viewBox="0 0 119 119" width="100%" height="100%">
+          <g>
+            <rect id="bg" y="0" width="119" height="119" fill="#10b981"/>
+            <path id="shadow" d="m75.37 22.26v27.46l-10.54 8.559-11.24 45.27 15.42 15.42h49.95v-53.11z" fill="#059669"/>
+            <path id="key" d="m37.47 37.46c0 10.06 6.861 18.58 16.12 21.17v44.91h17.97v-10.46h-6.196v-3.793h6.196v-10.46h-6.196v-20.19c9.264-2.593 16.12-11.11 16.12-21.17 0-12.1-9.97-22.41-22.38-22.12s-21.65 10.39-21.65 22.12zm22.03-13.4c7.437 0 13.34 5.963 13.34 13.4 0 7.437-5.903 13.34-13.34 13.34-7.437 0-13.37-5.903-13.37-13.34 0-7.437 5.932-13.4 13.37-13.4z" fill="#fff"/>
+          </g>
         </svg>
       `;
 
@@ -535,11 +538,16 @@
       this.popover.className = 'popover';
       this.popover.innerHTML = `
         <div class="popover-header">
-          <svg style="width: 14px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
-            <path d="M12.63 2a9.14 9.14 0 0 0-9 9.14c0 3.32 5.17 10.3 8.35 10.74a1 1 0 0 0 .65-.13l3-1.8a1 1 0 0 0 .37-.78v-1.63h1.8a1 1 0 0 0 .71-.29l1.8-1.8a1 1 0 0 0 .29-.71v-3.6a9.14 9.14 0 0 0-8-9.14zm3.17 12.18l-1.8 1.8a1 1 0 0 0-.29.71v1.63l-2.07 1.25c-2.47-.94-6.44-7.2-6.44-9.63a7.14 7.14 0 0 1 14 0v3.6a1 1 0 0 0-.4 1.14z"/>
-            <circle cx="12.63" cy="8" r="2" />
-          </svg>
-          LessPass Stateless Generator
+          <div style="width: 14px; height: 14px; border-radius: 50%; overflow: hidden; display: inline-flex; margin-right: 6px; flex-shrink: 0;">
+            <svg viewBox="0 0 119 119" width="14" height="14">
+              <g>
+                <rect id="bg" y="0" width="119" height="119" fill="#10b981"/>
+                <path id="shadow" d="m75.37 22.26v27.46l-10.54 8.559-11.24 45.27 15.42 15.42h49.95v-53.11z" fill="#059669"/>
+                <path id="key" d="m37.47 37.46c0 10.06 6.861 18.58 16.12 21.17v44.91h17.97v-10.46h-6.196v-3.793h6.196v-10.46h-6.196v-20.19c9.264-2.593 16.12-11.11 16.12-21.17 0-12.1-9.97-22.41-22.38-22.12s-21.65 10.39-21.65 22.12zm22.03-13.4c7.437 0 13.34 5.963 13.34 13.4 0 7.437-5.903 13.34-13.34 13.34-7.437 0-13.37-5.903-13.37-13.34 0-7.437 5.932-13.4 13.37-13.4z" fill="#fff"/>
+              </g>
+            </svg>
+          </div>
+          Better LessPass
         </div>
         
         <div class="form-group">

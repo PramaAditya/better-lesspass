@@ -3,6 +3,20 @@
   "name": "Better LessPass",
   "version": "1.0.0",
   "description": "A reimplementation of LessPass browser extension with better UX, including smart registered domain extraction, bidirectional field sync, and secure password peeking.",
+  "icons": {
+    "16": "icon.svg",
+    "32": "icon.svg",
+    "48": "icon.svg",
+    "128": "icon.svg"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icon.svg",
+      "32": "icon.svg",
+      "48": "icon.svg",
+      "128": "icon.svg"
+    }
+  },
   "permissions": [],
   "content_scripts": [
     {
