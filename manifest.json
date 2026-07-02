@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "LessPass Password Field Detector PoC",
+  "version": "1.0.0",
+  "description": "A proof of concept to detect password fields and auto-populate them.",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LessPass Field Detector PoC - Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+      max-width: 600px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e7eb;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+    input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background-color: white;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .btn-submit {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.15s ease;
+    }
+    .btn-submit:hover {
+      background-color: #2563eb;
+    }
+    .dynamic-section {
+      margin-top: 30px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 20px;
+    }
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+      border: none;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>LessPass PoC Test Page</h1>
+    <p>Use this form to test password field detection, icon overlay, and auto-population functionality.</p>
+    
+    <form onsubmit="alert('Password submitted: ' + document.getElementById('password').value); return false;">
+      <div class="form-group">
+        <label for="username">Username / Email</label>
+        <input type="text" id="username" placeholder="name@example.com" value="testuser@example.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••">
+      </div>
+      
+      <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+
+    <div class="dynamic-section">
+      <button id="add-password-btn" class="btn-secondary">Add Dynamic Password Field</button>
+      <div id="dynamic-container" style="margin-top: 15px;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Test dynamic MutationObserver detection
+    document.getElementById('add-password-btn').addEventListener('click', () => {
+      const container = document.getElementById('dynamic-container');
+      
+      const formGroup = document.createElement('div');
+      formGroup.className = 'form-group';
+      
+      const label = document.createElement('label');
+      label.textContent = 'Dynamic Password';
+      
+      const input = document.createElement('input');
+      input.type = 'password';
+      input.placeholder = 'Dynamic input detected!';
+      
+      formGroup.appendChild(label);
+      formGroup.appendChild(input);
+      container.appendChild(formGroup);
+    });
+  </script>
+</body>
+</html>
