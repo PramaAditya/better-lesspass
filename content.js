@@ -185,6 +185,25 @@
         });
     }
   };
+  function getRegisteredDomain(hostname) {
+    const parts = hostname.split('.');
+    if (parts.length <= 2) return hostname;
+    
+    // Common 2-part public suffixes
+    const commonSecondLevelTlds = new Set([
+      'co', 'com', 'org', 'net', 'edu', 'gov', 'mil', 'asn', 'id', 'or', 'ac', 'go'
+    ]);
+    
+    const last = parts[parts.length - 1];
+    const second = parts[parts.length - 2];
+    
+    // If the second to last part is one of the common second-level TLDs, and the last part is a standard ccTLD (usually 2 letters)
+    if (commonSecondLevelTlds.has(second) && last.length === 2) {
+      return parts.slice(-3).join('.');
+    }
+    
+    return parts.slice(-2).join('.');
+  }
 
   const activeHelpers = new Map();
 
@@ -416,7 +435,7 @@
       `;
 
       // Get Default Hostname
-      const defaultSite = window.location.hostname.replace(/^www\./, '');
+      const defaultSite = getRegisteredDomain(window.location.hostname);
 
       // Create Popover Layout matching the screenshot precisely
       this.popover = document.createElement('div');
