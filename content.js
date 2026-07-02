@@ -482,6 +482,38 @@
           cursor: not-allowed;
           opacity: 0.8;
         }
+
+        .password-wrapper {
+          position: relative;
+          width: 100%;
+        }
+
+        .password-wrapper input {
+          padding-right: 32px !important;
+        }
+
+        .toggle-password-btn {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          color: #9ca3af;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          outline: none;
+          pointer-events: auto;
+          transition: color 0.15s ease;
+        }
+
+        .toggle-password-btn:hover {
+          color: #ffffff;
+        }
       `;
 
       // Float Trigger Button
@@ -522,7 +554,14 @@
 
         <div class="form-group">
           <label>Master password</label>
-          <input type="password" id="lp-master-password" placeholder="master password">
+          <div class="password-wrapper">
+            <input type="password" id="lp-master-password" placeholder="master password">
+            <button type="button" class="toggle-password-btn" title="Show password">
+              <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
@@ -613,6 +652,34 @@
         e.stopPropagation();
       });
 
+      const eyeBtn = this.popover.querySelector('.toggle-password-btn');
+      const masterInput = this.popover.querySelector('#lp-master-password');
+      if (eyeBtn && masterInput) {
+        eyeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          const isPassword = masterInput.getAttribute('type') === 'password';
+          const type = isPassword ? 'text' : 'password';
+          masterInput.setAttribute('type', type);
+          
+          if (isPassword) {
+            eyeBtn.setAttribute('title', 'Hide password');
+            eyeBtn.innerHTML = `
+              <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.25 1.24-.65 1.69l1.45 1.45C18.8 14.14 19 13.1 19 12c0-4.39-4.27-7.5-9-7.5-1.12 0-2.18.17-3.16.48l1.47 1.47c.83-.28 1.7-.45 2.69-.45zM3 4.27l2.28 2.28C3.5 8.13 2.1 9.92 1.5 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l2.85 2.85 1.27-1.27L4.27 3 3 4.27zM9.54 9.54l1.69 1.69c-.14.4-.23.83-.23 1.27 0 1.93 1.57 3.5 3.5 3.5.44 0 .87-.09 1.27-.23l1.69 1.69c-.83.48-1.85.77-2.96.77-3.31 0-6-2.69-6-6 0-1.11.29-2.13.77-2.96z"/>
+              </svg>
+            `;
+          } else {
+            eyeBtn.setAttribute('title', 'Show password');
+            eyeBtn.innerHTML = `
+              <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+              </svg>
+            `;
+          }
+        });
+      }
+
       document.addEventListener('click', this.handleOutsideClick.bind(this));
 
       if (globalThis.ResizeObserver) {
@@ -645,6 +712,19 @@
       } else {
         this.iconBtn.classList.remove('open');
         this.popover.classList.remove('visible');
+
+        // Reset master password visibility on close for security
+        const mInput = this.popover.querySelector('#lp-master-password');
+        const eBtn = this.popover.querySelector('.toggle-password-btn');
+        if (mInput && eBtn) {
+          mInput.setAttribute('type', 'password');
+          eBtn.setAttribute('title', 'Show password');
+          eBtn.innerHTML = `
+            <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>
+          `;
+        }
       }
     }
 
