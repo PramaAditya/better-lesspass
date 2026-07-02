@@ -205,6 +205,67 @@
     return parts.slice(-2).join('.');
   }
 
+  function findUsernameField(passwordInput) {
+    const form = passwordInput.closest('form');
+    if (form) {
+      const inputs = form.querySelectorAll('input');
+      const candidateInputs = Array.from(inputs).filter(input => {
+        if (input === passwordInput) return false;
+        const type = input.getAttribute('type') || 'text';
+        return ['text', 'email', 'tel', 'url'].includes(type.toLowerCase());
+      });
+
+      let bestCandidate = null;
+      let highestScore = -1;
+
+      for (const input of candidateInputs) {
+        let score = 0;
+        const id = (input.id || '').toLowerCase();
+        const name = (input.name || '').toLowerCase();
+        const autocomplete = (input.getAttribute('autocomplete') || '').toLowerCase();
+        const placeholder = (input.placeholder || '').toLowerCase();
+        const className = (input.className || '').toLowerCase();
+        const type = (input.getAttribute('type') || 'text').toLowerCase();
+
+        if (type === 'email') score += 10;
+        if (autocomplete === 'username' || autocomplete === 'email') score += 15;
+
+        const keywords = ['user', 'email', 'login', 'usr', 'name', 'identifier'];
+        for (const keyword of keywords) {
+          if (id.includes(keyword)) score += 5;
+          if (name.includes(keyword)) score += 5;
+          if (placeholder.includes(keyword)) score += 5;
+          if (className.includes(keyword)) score += 2;
+        }
+
+        if (score === 0 && candidateInputs.indexOf(input) === 0) score += 1;
+
+        if (score > highestScore) {
+          highestScore = score;
+          bestCandidate = input;
+        }
+      }
+
+      if (bestCandidate && highestScore > 0) {
+        return bestCandidate;
+      }
+    }
+
+    const inputs = Array.from(document.querySelectorAll('input'));
+    const pwIndex = inputs.indexOf(passwordInput);
+    if (pwIndex > 0) {
+      for (let i = pwIndex - 1; i >= Math.max(0, pwIndex - 2); i--) {
+        const input = inputs[i];
+        const type = (input.getAttribute('type') || 'text').toLowerCase();
+        if (['text', 'email'].includes(type)) {
+          return input;
+        }
+      }
+    }
+
+    return null;
+  }
+
   const activeHelpers = new Map();
 
   class PasswordHelper {
@@ -568,6 +629,13 @@
         this.iconBtn.classList.add('open');
         this.popover.classList.add('visible');
         this.reposition();
+
+        // Bidirectional sync: prepopulate login from page if username field is filled
+        const usernameField = findUsernameField(this.input);
+        const loginInput = this.popover.querySelector('#lp-login');
+        if (usernameField && usernameField.value && loginInput) {
+          loginInput.value = usernameField.value;
+        }
         
         // Auto focus the master password field for speed
         setTimeout(() => {
@@ -620,6 +688,28 @@
 
         const generatedPassword = await LessPass.generatePassword(profile, masterPassword);
         
+        // Bidirectional sync: write login field back to page username field
+        const usernameField = findUsernameField(this.input);
+        if (usernameField && login) {
+          usernameField.value = login;
+          usernameField.dispatchEvent(new Event('input', { bubbles: true }));
+          usernameField.dispatchEvent(new Event('change', { bubbles: true }));
+
+          // Success glow feedback on username input
+          const uTransition = usernameField.style.transition;
+          const uOutline = usernameField.style.outline;
+          usernameField.style.transition = 'outline 0.2s ease, box-shadow 0.2s ease';
+          usernameField.style.outline = '2px solid #10b981';
+          usernameField.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.4)';
+          setTimeout(() => {
+            usernameField.style.outline = uOutline;
+            usernameField.style.boxShadow = '';
+            setTimeout(() => {
+              usernameField.style.transition = uTransition;
+            }, 200);
+          }, 800);
+        }
+
         // Fill Password into host page password input
         this.input.value = generatedPassword;
         this.input.dispatchEvent(new Event('input', { bubbles: true }));
