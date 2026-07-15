@@ -275,6 +275,7 @@
       this.createElements();
       this.reposition();
       this.setupEventListeners();
+      this.loadSavedSettings();
     }
 
     createElements() {
@@ -394,6 +395,24 @@
           font-size: 12px;
           font-weight: 600;
           color: #e5e7eb;
+        }
+
+        .label-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .shortcut-badge {
+          background: #1c1c1f;
+          color: #71717a;
+          border-radius: 4px;
+          padding: 1px 4px;
+          font-size: 9px;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          border: 1px solid #2d2d31;
+          pointer-events: none;
+          letter-spacing: 0.02em;
         }
 
         input[type="text"],
@@ -519,7 +538,7 @@
       // Float Trigger Button
       this.iconBtn = document.createElement('button');
       this.iconBtn.className = 'icon-btn';
-      this.iconBtn.setAttribute('title', 'Better LessPass');
+      this.iconBtn.setAttribute('title', 'Better LessPass (Alt+L)');
       this.iconBtn.innerHTML = `
         <svg viewBox="0 0 119 119" width="100%" height="100%">
           <g>
@@ -548,6 +567,7 @@
             </svg>
           </div>
           Better LessPass
+          <span class="shortcut-badge" style="margin-left: auto;">Esc</span>
         </div>
         
         <div class="form-group">
@@ -561,7 +581,10 @@
         </div>
 
         <div class="form-group">
-          <label>Master password</label>
+          <div class="label-row">
+            <label>Master password</label>
+            <span class="shortcut-badge">Alt + V</span>
+          </div>
           <div class="password-wrapper">
             <input type="password" id="lp-master-password" placeholder="master password">
             <button type="button" class="toggle-password-btn" title="Show password">
@@ -603,6 +626,7 @@
 
         <button class="action-btn" id="lp-generate">
           Generate & Fill
+          <span class="shortcut-badge" style="background: rgba(255,255,255,0.1); color: #e4e4e7; border-color: rgba(255,255,255,0.15); margin-left: 6px;">Enter</span>
         </button>
       `;
 
@@ -666,27 +690,90 @@
         eyeBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           e.preventDefault();
-          const isPassword = masterInput.getAttribute('type') === 'password';
-          const type = isPassword ? 'text' : 'password';
-          masterInput.setAttribute('type', type);
-          
-          if (isPassword) {
-            eyeBtn.setAttribute('title', 'Hide password');
-            eyeBtn.innerHTML = `
-              <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.25 1.24-.65 1.69l1.45 1.45C18.8 14.14 19 13.1 19 12c0-4.39-4.27-7.5-9-7.5-1.12 0-2.18.17-3.16.48l1.47 1.47c.83-.28 1.7-.45 2.69-.45zM3 4.27l2.28 2.28C3.5 8.13 2.1 9.92 1.5 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l2.85 2.85 1.27-1.27L4.27 3 3 4.27zM9.54 9.54l1.69 1.69c-.14.4-.23.83-.23 1.27 0 1.93 1.57 3.5 3.5 3.5.44 0 .87-.09 1.27-.23l1.69 1.69c-.83.48-1.85.77-2.96.77-3.31 0-6-2.69-6-6 0-1.11.29-2.13.77-2.96z"/>
-              </svg>
-            `;
-          } else {
-            eyeBtn.setAttribute('title', 'Show password');
-            eyeBtn.innerHTML = `
-              <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-            `;
-          }
+          this.toggleMasterPasswordVisibility();
         });
       }
+
+      // 1. Contextual Keyboard Shortcut: Toggle popover from host input with Alt+L
+      this.input.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.key === 'l' || e.key === 'L')) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.togglePopover();
+        }
+      });
+
+      // 2. Keyboard Shortcuts inside Popover
+      this.popover.addEventListener('keydown', (e) => {
+        // Escape closes popover
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          this.togglePopover();
+          this.input.focus(); // return focus to main field
+        }
+
+        // Enter generates & fills
+        if (e.key === 'Enter') {
+          // Avoid firing when focused on checkboxes or buttons (let space/click fire standard actions there)
+          if (document.activeElement && (document.activeElement.tagName === 'BUTTON' || document.activeElement.type === 'checkbox')) {
+            return;
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          this.generateAndFill();
+        }
+
+        // Alt + V toggles master password peek/visibility
+        if (e.altKey && (e.key === 'v' || e.key === 'V')) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.toggleMasterPasswordVisibility();
+        }
+
+        // Focus Trapping: Prevent tab key from leaking focus out of the Shadow DOM
+        if (e.key === 'Tab') {
+          const focusable = this.getFocusableElements();
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          const active = this.shadow.activeElement;
+
+          if (e.shiftKey) {
+            // Shift + Tab: Wrap from first to last focusable element
+            if (active === first || !focusable.includes(active)) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            // Tab: Wrap from last to first focusable element
+            if (active === last || !focusable.includes(active)) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      });
+
+      // 3. Settings Persistence: Save settings on change
+      const optSelectors = [
+        '#lp-opt-lowercase',
+        '#lp-opt-uppercase',
+        '#lp-opt-digits',
+        '#lp-opt-symbols',
+        '#lp-length',
+        '#lp-counter'
+      ];
+      optSelectors.forEach(selector => {
+        const el = this.popover.querySelector(selector);
+        if (el) {
+          el.addEventListener('change', () => this.saveSettings());
+          if (el.tagName === 'INPUT' && el.type === 'number') {
+            el.addEventListener('input', () => this.saveSettings());
+          }
+        }
+      });
 
       document.addEventListener('click', this.handleOutsideClick.bind(this));
 
@@ -848,6 +935,78 @@
         this.container.parentNode.removeChild(this.container);
       }
       document.removeEventListener('click', this.handleOutsideClick);
+    }
+
+    toggleMasterPasswordVisibility() {
+      const masterInput = this.popover.querySelector('#lp-master-password');
+      const eyeBtn = this.popover.querySelector('.toggle-password-btn');
+      if (!masterInput || !eyeBtn) return;
+      
+      const isPassword = masterInput.getAttribute('type') === 'password';
+      const type = isPassword ? 'text' : 'password';
+      masterInput.setAttribute('type', type);
+      
+      if (isPassword) {
+        eyeBtn.setAttribute('title', 'Hide password');
+        eyeBtn.innerHTML = `
+          <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.25 1.24-.65 1.69l1.45 1.45C18.8 14.14 19 13.1 19 12c0-4.39-4.27-7.5-9-7.5-1.12 0-2.18.17-3.16.48l1.47 1.47c.83-.28 1.7-.45 2.69-.45zM3 4.27l2.28 2.28C3.5 8.13 2.1 9.92 1.5 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l2.85 2.85 1.27-1.27L4.27 3 3 4.27zM9.54 9.54l1.69 1.69c-.14.4-.23.83-.23 1.27 0 1.93 1.57 3.5 3.5 3.5.44 0 .87-.09 1.27-.23l1.69 1.69c-.83.48-1.85.77-2.96.77-3.31 0-6-2.69-6-6 0-1.11.29-2.13.77-2.96z"/>
+          </svg>
+        `;
+      } else {
+        eyeBtn.setAttribute('title', 'Show password');
+        eyeBtn.innerHTML = `
+          <svg style="width: 16px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+          </svg>
+        `;
+      }
+    }
+
+    getFocusableElements() {
+      return Array.from(this.shadow.querySelectorAll(
+        'input, button, [tabindex="0"]'
+      )).filter(el => {
+        return el.tabIndex !== -1 && !el.disabled && el.style.display !== 'none';
+      });
+    }
+
+    loadSavedSettings() {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(['lpOpts', 'lpLength', 'lpCounter'], (items) => {
+          if (items.lpOpts) {
+            this.popover.querySelector('#lp-opt-lowercase').checked = !!items.lpOpts.lowercase;
+            this.popover.querySelector('#lp-opt-uppercase').checked = !!items.lpOpts.uppercase;
+            this.popover.querySelector('#lp-opt-digits').checked = !!items.lpOpts.digits;
+            this.popover.querySelector('#lp-opt-symbols').checked = !!items.lpOpts.symbols;
+          }
+          if (items.lpLength) {
+            this.popover.querySelector('#lp-length').value = items.lpLength;
+          }
+          if (items.lpCounter) {
+            this.popover.querySelector('#lp-counter').value = items.lpCounter;
+          }
+        });
+      }
+    }
+
+    saveSettings() {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        const opts = {
+          lowercase: this.popover.querySelector('#lp-opt-lowercase').checked,
+          uppercase: this.popover.querySelector('#lp-opt-uppercase').checked,
+          digits: this.popover.querySelector('#lp-opt-digits').checked,
+          symbols: this.popover.querySelector('#lp-opt-symbols').checked
+        };
+        const length = parseInt(this.popover.querySelector('#lp-length').value, 10) || 16;
+        const counter = parseInt(this.popover.querySelector('#lp-counter').value, 10) || 1;
+
+        chrome.storage.local.set({
+          lpOpts: opts,
+          lpLength: length,
+          lpCounter: counter
+        });
+      }
     }
   }
 
