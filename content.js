@@ -794,7 +794,7 @@
       }
     }
 
-    togglePopover() {
+    togglePopover(isSubmit = false) {
       this.isOpen = !this.isOpen;
       if (this.isOpen) {
         this.iconBtn.classList.add('open');
@@ -828,6 +828,27 @@
               <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
             </svg>
           `;
+        }
+
+        // Return focus to appropriate element
+        if (isSubmit) {
+          const form = this.input.closest('form');
+          let submitBtn = null;
+          if (form) {
+            submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+            if (!submitBtn) {
+              submitBtn = Array.from(form.querySelectorAll('button')).find(btn => {
+                return !btn.classList.contains('icon-btn') && !btn.classList.contains('action-btn');
+              });
+            }
+          }
+          if (submitBtn) {
+            submitBtn.focus();
+          } else {
+            this.input.focus();
+          }
+        } else {
+          this.input.focus();
         }
       }
     }
@@ -920,7 +941,7 @@
 
         // Reset state & close popover
         this.popover.querySelector('#lp-master-password').value = ''; // Clean master password for security
-        this.togglePopover();
+        this.togglePopover(true);
       } catch (err) {
         console.error("LessPass generation failed:", err);
         alert("Generation failed: " + err.message);
