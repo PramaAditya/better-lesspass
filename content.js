@@ -651,15 +651,24 @@
 
       const btnSize = 22;
       
-      const btnTop = rect.top + scrollY + (rect.height - btnSize) / 2;
-      const btnLeft = rect.right + scrollX - btnSize - 6;
+      // Boundary checking: if input is at the very top of the page, keep icon vertically centered inside,
+      // otherwise float it elegantly above the top-right corner to avoid covering page peek icons.
+      const canFloatAbove = rect.top > (btnSize + 10);
+      const btnTop = canFloatAbove 
+        ? rect.top + scrollY - btnSize - 4 
+        : rect.top + scrollY + (rect.height - btnSize) / 2;
+        
+      const btnLeft = canFloatAbove
+        ? rect.right + scrollX - btnSize
+        : rect.right + scrollX - btnSize - 6;
 
       this.iconBtn.style.top = `${btnTop}px`;
       this.iconBtn.style.left = `${btnLeft}px`;
 
       const popoverWidth = 360;
-      const popoverTop = btnTop + btnSize + 6;
-      const popoverLeft = btnLeft + btnSize - popoverWidth;
+      // Float popover directly below the input field, aligned to the right edge
+      const popoverTop = rect.bottom + scrollY + 6;
+      const popoverLeft = rect.right + scrollX - popoverWidth;
 
       this.popover.style.top = `${popoverTop}px`;
       this.popover.style.left = `${popoverLeft}px`;
