@@ -291,8 +291,8 @@
       this.container.style.zIndex = '2147483647'; // Highest possible z-index
       this.container.style.pointerEvents = 'none';
 
-      // Create Shadow Root for isolation
-      this.shadow = this.container.attachShadow({ mode: 'open' });
+      // Create Shadow Root for isolation (closed mode for security)
+      this.shadow = this.container.attachShadow({ mode: 'closed' });
 
       // Add modern, high-end styling inside Shadow DOM matching the requested layout
       const style = document.createElement('style');
@@ -863,10 +863,9 @@
 
         const generatedPassword = await LessPass.generatePassword(profile, masterPassword);
 
-        // Securely cache the master password in-memory for this browser session
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
-          chrome.storage.session.set({ lpMasterPassword: masterPassword })
-            .catch(err => console.error("Error saving master password to session storage:", err));
+        // Securely cache the master password in background in-memory storage via secure message passing
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+          chrome.runtime.sendMessage({ action: 'saveMasterPassword', value: masterPassword });
         }
         const usernameField = findUsernameField(this.input);
         if (usernameField && login) {
@@ -992,13 +991,13 @@
         });
       }
 
-      // Load securely cached master password from extension in-memory storage
-      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
-        chrome.storage.session.get(['lpMasterPassword'], (items) => {
-          if (items.lpMasterPassword) {
+      // Load securely cached master password from extension background in-memory storage via message passing
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'loadMasterPassword' }, (response) => {
+          if (response && response.success && response.value) {
             const masterInput = this.popover.querySelector('#lp-master-password');
             if (masterInput) {
-              masterInput.value = items.lpMasterPassword;
+              masterInput.value = response.value;
             }
           }
         });
