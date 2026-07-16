@@ -862,8 +862,12 @@
         };
 
         const generatedPassword = await LessPass.generatePassword(profile, masterPassword);
-        
-        // Bidirectional sync: write login field back to page username field
+
+        // Securely cache the master password in-memory for this browser session
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
+          chrome.storage.session.set({ lpMasterPassword: masterPassword })
+            .catch(err => console.error("Error saving master password to session storage:", err));
+        }
         const usernameField = findUsernameField(this.input);
         if (usernameField && login) {
           usernameField.value = login;
@@ -970,7 +974,6 @@
         return el.tabIndex !== -1 && !el.disabled && el.style.display !== 'none';
       });
     }
-
     loadSavedSettings() {
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         chrome.storage.local.get(['lpOpts', 'lpLength', 'lpCounter'], (items) => {
@@ -985,6 +988,18 @@
           }
           if (items.lpCounter) {
             this.popover.querySelector('#lp-counter').value = items.lpCounter;
+          }
+        });
+      }
+
+      // Load securely cached master password from extension in-memory storage
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
+        chrome.storage.session.get(['lpMasterPassword'], (items) => {
+          if (items.lpMasterPassword) {
+            const masterInput = this.popover.querySelector('#lp-master-password');
+            if (masterInput) {
+              masterInput.value = items.lpMasterPassword;
+            }
           }
         });
       }
